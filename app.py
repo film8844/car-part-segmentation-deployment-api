@@ -4,7 +4,6 @@ import werkzeug.utils
 import os
 import cv2 as cv
 
-
 from configs import *
 from tools import *
 
@@ -26,13 +25,13 @@ def uploadfile():
             flash('No image selected for uploading')
             return redirect('/')
         if file and allowed_file(file.filename):
-            filename = file.filename.replace(' ','_')
+            filename = file.filename.replace(' ', '_')
             print(filename)
             filename = werkzeug.utils.secure_filename(filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             img = cv.imread(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-            resize_img(img,(300,300),os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            resize_img(img, (300, 300), os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
             flash('Image successfully uploaded and displayed below')
             return render_template('index.html', filename=filename)
@@ -41,14 +40,17 @@ def uploadfile():
             return redirect('/')
     return render_template('index.html')
 
+
 @app.route('/display/<filename>')
 def display_image(filename):
-    #print('display_image filename: ' + filename)
+    # print('display_image filename: ' + filename)
     return redirect(url_for('static', filename='uploads/' + filename), code=301)
+
 
 @app.route('/clear')
 def clear():
-    return jsonify({'status':'remove all file success.','filenames':clear_file()}), 201
+    return jsonify({'status': 'remove all file success.', 'filenames': clear_file()}), 201
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=PORT)
