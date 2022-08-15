@@ -29,8 +29,8 @@ def uploadfile():
             print(filename)
             filename = werkzeug.utils.secure_filename(filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            img = cv.imread(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
+            img = cv.imread(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             resize_img(img, (300, 300), os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
             flash('Image successfully uploaded and displayed below')
