@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import os
 import glob
+import shutil
 
 
 def allowed_file(filename):
@@ -24,5 +25,8 @@ def clear_file():
     files = []
     for i in glob.glob(os.path.join('static', 'uploads', '*')):
         files.append(i)
-        os.remove(i)
+        try:
+            shutil.rmtree(i)
+        except:
+            os.remove(i)
     return files

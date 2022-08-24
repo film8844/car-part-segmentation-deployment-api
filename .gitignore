@@ -131,3 +131,4 @@ dmypy.json
 .idea
 .DS_Store
 static/uploads
+model_env/segformer-carpaets-b3-1e4
