@@ -1,44 +1,76 @@
-<html>
-<head>
-    <title>Python Flask Upload and display image</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"/>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-</head>
-<body>
-<p>
-<h1 align="center">Python Flask Upload and display image</h1></p>
-<div class="container">
-    <div class="row">
-        <h2>Select a file to upload</h2>
-        <p>
-            {% with messages = get_flashed_messages() %}
-            {% if messages %}
-        <ul>
-            {% for message in messages %}
-            <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-        {% endwith %}
-        </p>
-        {% if filename %}
-        <div>
-            <img src="{{ url_for('display_image', filename=filename, file='original.jpeg') }}">
-            <img src="{{ url_for('display_image', filename=filename, file='sementic.jpeg') }}">
-            <img src="{{ url_for('display_image', filename=filename, file='mask.jpeg') }}">
-        </div>
-        {% endif %}
+{% extends 'template.html' %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
+        <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">Pages</a>
+        </li>
+        <li class="breadcrumb-item text-sm text-dark active" aria-current="page">Upload</li>
+    </ol>
+    <h2 class="font-weight-bolder mb-0"> Upload </h2>
+</nav>
+{% endblock %}
+
+{% block title %} Upload {% endblock %}
+{% block page2 %} active {% endblock %}
+
+{% block content %}
+<div class="row mt5">
+    <h4>Select a file to upload</h4>
+    <div class="col-12">
         <form method="post" enctype="multipart/form-data">
-            <dl>
-                <p>
-                    <input type="file" name="file" class="form-control" autocomplete="off" required>
-                </p>
-            </dl>
-            <p>
+            <div class="form-group">
+                <input class="form-control form-control-lg" type="file" name="file" class="form-control"
+                       autocomplete="off" required>
+            </div>
+
+            <div class="d-flex justify-content-center">
                 <input type="submit" value="Submit" class="btn btn-info">
-            </p>
+            </div>
+
+
         </form>
     </div>
+    <div class="col-12">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-danger text-white" role="alert">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+
 </div>
-</body>
-</html>
+{% if filename %}
+<div class="row mt-4">
+    <h4>Output !</h4>
+    {% for i in ['original','sementic','mask'] %}
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header p-0 mx-3 mt-3 position-relative z-index-1">
+                <a href="{{url_for('display_image', filename=filename, file=i+'.jpg')}}" class="d-block">
+                    <img src="{{ url_for('display_image', filename=filename, file=i+'.jpg') }}"
+                         class="img-fluid border-radius-lg">
+                </a>
+            </div>
+
+            <div class="card-body pt-2">
+                <span class="text-gradient text-primary text-uppercase text-xs font-weight-bold my-2">{{filename}}</span>
+                <a href="javascript:;" class="card-title h5 d-block text-darker">
+                    {{i}}
+                </a>
+                <p class="card-description ">
+                    ....
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+{% endif %}
+
+{% endblock %}

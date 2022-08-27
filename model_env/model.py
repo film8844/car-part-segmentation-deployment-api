@@ -138,22 +138,32 @@ def visualize_model(image,filename: str,model_finetune):
     color_seg = np.zeros((seg.shape[0], seg.shape[1], 3), dtype=np.uint8)
     # list_prediction = [classes[idx] for idx in np.unique(seg.cpu().numpy())]
     list_prediction = {idx: classes[idx] for idx in np.unique(seg.cpu().numpy())}
+
+    print(seg.shape)
     # list_label = [classes[idx] for idx in label]
     print("Predction : ", list_prediction)
+    # for id, label in enumerate(list_prediction):
+    #     part_mark = np.zeros(image.shape[:2], dtype=np.uint8)
+    #     part_mark[seg.cpu() == id] = 255
+    #     cv2.imwrite(os.path.join('static', 'uploads', filename[0], str(label) + filename[-1]), part_mark)
+
+
     for label, color in enumerate(palette):
         color_seg[seg.cpu() == label, :] = color
+
     # color_seg = color_seg[..., ::-1]
     img_sementice = np.array(image) * 0.5 + color_seg * 0.5
     img_sementice = img_sementice.astype(np.uint8)
 
+    cv2.imwrite(os.path.join('static', 'uploads', filename[0],'output.jpg'), np.array(seg))
+    cv2.imwrite(os.path.join('static', 'uploads', filename[0],'original.jpg'), image)
+    cv2.imwrite(os.path.join('static', 'uploads', filename[0],'sementic.jpg'), img_sementice)
+    cv2.imwrite(os.path.join('static', 'uploads', filename[0],'mask.jpg'), color_seg)
 
-    cv2.imwrite(os.path.join('static', 'uploads', filename[0],'original.'+filename[-1]), image)
-    cv2.imwrite(os.path.join('static', 'uploads', filename[0],'sementic.'+filename[-1]), img_sementice)
-    cv2.imwrite(os.path.join('static', 'uploads', filename[0],'mask.'+filename[-1]), color_seg)
 
 
 if __name__ == '__main__':
     print('Start')
 
-    visualize_model('../train1.jpg')
+    visualize_model('../static/uploads/images/original.jpeg')
     # img = cv2.imread('../train1.jpg')

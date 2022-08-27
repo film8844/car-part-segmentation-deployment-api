@@ -16,7 +16,9 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html')
+    files = os.listdir(os.path.join('static','uploads'))
+    print(files)
+    return render_template('Home.html', files = files)
 
 @app.route('/upload', methods=['GET', 'POST'])
 def uploadfile():
@@ -27,20 +29,19 @@ def uploadfile():
         file = request.files['file']
         if file.filename == '':
             flash('No image selected for uploading')
-            return redirect('/')
+            return redirect('/upload')
         if file and allowed_file(file.filename):
             filename = file.filename.replace(' ', '_')
             print(filename)
             filename = werkzeug.utils.secure_filename(filename)
             if not os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], filename.split('.')[0])):os.mkdir(os.path.join(app.config['UPLOAD_FOLDER'], filename.split('.')[0]))
 
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename.split('.')[0],'original.'+filename.split('.')[-1]))
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename.split('.')[0],'original.jpg'))
 
-            img = cv.imread(os.path.join(app.config['UPLOAD_FOLDER'], filename.split('.')[0],'original.'+filename.split('.')[-1]))
+            img = cv.imread(os.path.join(app.config['UPLOAD_FOLDER'], filename.split('.')[0],'original.jpg'))
 
             visualize_model(img,filename,model_finetune)
 
-            flash('Image successfully uploaded and displayed below')
             return render_template('upload.html', filename=filename)
         else:
             flash('Allowed image types are - png, jpg, jpeg, gif')
@@ -50,7 +51,8 @@ def uploadfile():
 
 @app.route('/display/<filename>/<file>')
 def display_image(filename,file):
-    return redirect(url_for('static', filename='uploads/' + filename.split('.')[0]+'/'+file), code=301)
+    path = os.path.join('uploads',filename.split('.')[0],file)
+    return redirect(url_for('static', filename=path), code=301)
 
 
 @app.route('/clear')
