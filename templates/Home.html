@@ -149,19 +149,19 @@
                                              class="img-fluid shadow border-radius-xl">
                                     </a>
                                 </div>
-                                <div class="card-body px-1 pb-0">
+                                <div class="card-body px-1 pb-0 d-inline-block text-truncate">
                                     <p class="text-gradient text-dark mb-2 text-sm">Filename</p>
-                                    <a href="javascript:;">
+                                    <a href="{{url_for('car',filename=i)}}" >
                                         <h5>
                                             {{i}}
                                         </h5>
                                     </a>
-                                    <p class="mb-4 text-sm">
-                                        ...
-                                    </p>
+<!--                                    <p class="mb-4 text-sm">-->
+<!--                                        ...-->
+<!--                                    </p>-->
                                     <div class="d-flex align-items-center justify-content-center">
-                                        <button type="button" class="btn btn-outline-primary btn-sm mb-3">View Project
-                                        </button>
+                                        <a href="{{url_for('car',filename=i)}}" class="btn btn-outline-primary btn-sm mb-3">Open file
+                                        </a>
                                     </div>
                                 </div>
                             </div>

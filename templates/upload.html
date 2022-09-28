@@ -46,9 +46,9 @@
 </div>
 {% if filename %}
 <div class="row mt-4">
-    <h4>Output !</h4>
-    {% for i in ['original','sementic','mask'] %}
-    <div class="col-md-4">
+    <h4>Output !{% if logo %} {logo} {% endif %}</h4>
+    {% for i in ['logo','original','sementic','mask'] %}
+    <div class="col-md-3">
         <div class="card">
             <div class="card-header p-0 mx-3 mt-3 position-relative z-index-1">
                 <a href="{{url_for('display_image', filename=filename, file=i+'.jpg')}}" class="d-block">
@@ -59,7 +59,7 @@
 
             <div class="card-body pt-2">
                 <span class="text-gradient text-primary text-uppercase text-xs font-weight-bold my-2">{{filename}}</span>
-                <a href="javascript:;" class="card-title h5 d-block text-darker">
+                <a href="javascript:;" class="card-title h5 d-block text-darker ">
                     {{i}}
                 </a>
                 <p class="card-description ">
@@ -69,6 +69,10 @@
         </div>
     </div>
     {% endfor %}
+    <div class="d-flex justify-content-center col-12 mt-4">
+        <a href="{{ url_for('car',filename=filename.split('.')[0] ) }}" class="btn btn-outline-primary btn-sm mb-3">View more</a>
+    </div>
+
 
 </div>
 {% endif %}
