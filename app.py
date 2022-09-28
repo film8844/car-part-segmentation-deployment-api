@@ -52,7 +52,6 @@ def uploadfile():
             xy, _ = usemodel(img.copy(), os.path.join(app.config['UPLOAD_FOLDER'], filename.split('.')[0], 'brand'))
             visualize_model(img, filename, model_finetune)
 
-
             return render_template('upload.html', filename=filename,logo = xy['name'])
         else:
             flash('Allowed image types are - png, jpg, jpeg, gif')
@@ -72,7 +71,7 @@ def car(filename):
         data = {
             'logo':glob.glob(os.path.join('static', 'uploads', filename,'brand', '*.jpg'))[0]
         }
-    except: data=dict()
+    except: data = dict()
     files = glob.glob(os.path.join('static', 'uploads', filename, '*.png'))
     files = list(map(lambda x: x.replace('static/', ''), files))
     print(files)
