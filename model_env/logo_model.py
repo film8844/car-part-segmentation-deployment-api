@@ -3,7 +3,7 @@ import torch
 import ssl
 import cv2
 ssl._create_default_https_context = ssl._create_unverified_context
-logo_model = torch.hub.load("ultralytics/yolov5", 'custom', path='./model_env/best.pt')
+logo_model = torch.hub.load("ultralytics/yolov5", 'custom', path='./model_env/best_yolov5s_size640.pt')
 
 def usemodel(img, savepath='.'):
     img_c = img.copy()

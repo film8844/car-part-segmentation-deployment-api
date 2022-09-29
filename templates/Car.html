@@ -18,11 +18,34 @@
 
 {% block content %}
 {% if filename %}
-<h4>Output! {% if data['logo'] %} Car brand {{data['logo'].split('/')[-1].split('.')[0]}}{% endif %}</h4>
-<div class="row mt-4">
+<h2>Results! </h2>
+<h4>{% if data['logo'] %} Car Brand Detection <span class="badge bg-primary">{{data['logo'].split('/')[-1].split('.')[0]}}</span>
+    {% endif %}</h4>
+<div class="row mt-4 justify-content-center">
+    {% for i in ['logo'] %}
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-header p-0 mx-3 mt-3 position-relative z-index-1">
+                <a href="{{url_for('display_image', filename=filename, file=i+'.jpg')}}" class="d-block">
+                    <img src="{{ url_for('display_image', filename=filename, file=i+'.jpg') }}"
+                         class="img-fluid border-radius-lg">
+                </a>
+            </div>
 
+            <div class="card-body pt-2">
+                <span class="text-gradient text-primary text-uppercase text-xs font-weight-bold my-2">{{filename}}</span>
+                <a href="javascript:;" class="card-title h5 d-block text-darker">
+                    {{i}}
+                </a>
+                <p class="card-description ">
+                    ....
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
     {% if data['logo'] %}
-    <div class="col-md-3">
+    <div class="col-md-4 mb-4">
         <div class="card">
             <div class="card-header p-0 mx-3 mt-3 position-relative z-index-1">
                 <a href="{{url_for('static', filename=data['logo'][7:])}}" class="d-block">
@@ -43,8 +66,13 @@
         </div>
     </div>
     {% endif %}
+
+</div>
+<div class="row mt-4"><h4>Car Segmentation </h4></div>
+
+<div class="row mt-4">
     {% for i in ['original','sementic','mask'] %}
-    <div class="col-md-3">
+    <div class="col-md-4 mb-4">
         <div class="card">
             <div class="card-header p-0 mx-3 mt-3 position-relative z-index-1">
                 <a href="{{url_for('display_image', filename=filename, file=i+'.jpg')}}" class="d-block">
@@ -70,27 +98,27 @@
 {% endif %}
 {% if files %}
 <div class="row mt-4">
-<!--    <h4>Output !</h4>-->
-<!--    {% for i in files %}-->
-<!--    <div class="col-md-4">-->
-<!--        <div class="card mb-4">-->
-<!--            <div class="card-header p-0 mx-3 mt-3 position-relative z-index-1">-->
-<!--                <a href="{{ url_for('static', filename=i.replace('/static/','')) }}" class="d-block">-->
-<!--                    <img src="{{ url_for('static', filename=i.replace('/static/','')) }}"-->
-<!--                         class="img-fluid border-radius-lg">-->
-<!--                </a>-->
-<!--            </div>-->
+    <!--    <h4>Output !</h4>-->
+    <!--    {% for i in files %}-->
+    <!--    <div class="col-md-4">-->
+    <!--        <div class="card mb-4">-->
+    <!--            <div class="card-header p-0 mx-3 mt-3 position-relative z-index-1">-->
+    <!--                <a href="{{ url_for('static', filename=i.replace('/static/','')) }}" class="d-block">-->
+    <!--                    <img src="{{ url_for('static', filename=i.replace('/static/','')) }}"-->
+    <!--                         class="img-fluid border-radius-lg">-->
+    <!--                </a>-->
+    <!--            </div>-->
 
-<!--            <div class="card-body pt-1 pb-4">-->
-<!--                <span class="text-gradient text-primary text-uppercase text-xs font-weight-bold my-2">Part Name</span>-->
-<!--                <a href="javascript:;" class="card-title h5 d-block text-darker">-->
-<!--                    {{i.split('/')[-1].split('.')[0].replace('_',' ')}}-->
-<!--                </a>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
+    <!--            <div class="card-body pt-1 pb-4">-->
+    <!--                <span class="text-gradient text-primary text-uppercase text-xs font-weight-bold my-2">Part Name</span>-->
+    <!--                <a href="javascript:;" class="card-title h5 d-block text-darker">-->
+    <!--                    {{i.split('/')[-1].split('.')[0].replace('_',' ')}}-->
+    <!--                </a>-->
+    <!--            </div>-->
+    <!--        </div>-->
+    <!--    </div>-->
 
-<!--    {% endfor %}-->
+    <!--    {% endfor %}-->
     <div class="col-12 mt-4">
         <div class="card mb-4">
             <div class="card-header pb-0 p-3">

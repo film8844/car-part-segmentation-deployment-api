@@ -18,14 +18,17 @@
 <div class="row mt5">
     <h4>Select a file to upload</h4>
     <div class="col-12">
-        <form method="post" enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data" onsubmit="loading()">
             <div class="form-group">
                 <input class="form-control form-control-lg" type="file" name="file" class="form-control"
                        autocomplete="off" required>
             </div>
 
             <div class="d-flex justify-content-center">
-                <input type="submit" value="Submit" class="btn btn-info">
+                <input type="submit" value="Submit" id="sub" class="btn btn-info">
+                <div class="spinner-border text-info" id="loading" style="display:none;" role="status">
+                    <span class="sr-only"></span>
+                </div>
             </div>
 
 
@@ -46,9 +49,9 @@
 </div>
 {% if filename %}
 <div class="row mt-4">
-    <h4>Output !{% if logo %} {logo} {% endif %}</h4>
+    <h4>Result : {% if logo %} Car brand   <span class="badge bg-primary">{{logo}}</span> {% endif %}</h4>
     {% for i in ['logo','original','sementic','mask'] %}
-    <div class="col-md-3">
+    <div class="col-md-3 mt-4">
         <div class="card">
             <div class="card-header p-0 mx-3 mt-3 position-relative z-index-1">
                 <a href="{{url_for('display_image', filename=filename, file=i+'.jpg')}}" class="d-block">
@@ -70,11 +73,22 @@
     </div>
     {% endfor %}
     <div class="d-flex justify-content-center col-12 mt-4">
-        <a href="{{ url_for('car',filename=filename.split('.')[0] ) }}" class="btn btn-outline-primary btn-sm mb-3">View more</a>
+        <a href="{{ url_for('car',filename=filename.split('.')[0] ) }}" class="btn btn-outline-primary btn-sm mb-3">View
+            more</a>
     </div>
 
 
 </div>
 {% endif %}
 
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+function loading(){
+    document.getElementById('sub').style.display = "none";
+    document.getElementById('loading').style.display = "block";
+}
+
+</script>
 {% endblock %}

@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request, render_template, flash, redirect, url_for
 from flask_cors import CORS
 import werkzeug.utils
-import os
+import os,datetime
 import cv2 as cv
 from configs import *
 from tools import *
@@ -17,9 +17,12 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    files = os.listdir(os.path.join('static', 'uploads'))
+    files = sorted(os.listdir(os.path.join('static', 'uploads')))
+    set_date = list(set(map(lambda x:x.split('_')[0],files)))
+    set_date = sorted(set_date,reverse=True)
     print(files)
-    return render_template('Home.html', files=files)
+    print(set_date)
+    return render_template('Home.html', files=files, date=set_date)
 
 
 @app.route('/test', methods=['GET', 'POST'])
@@ -40,6 +43,8 @@ def uploadfile():
         if file and allowed_file(file.filename):
             filename = file.filename.replace(' ', '_')
             print(filename)
+            filename = datetime.datetime.now().strftime("%Y-%m-%d_%X._")
+            print(datetime.datetime.now().strftime("%Y-%m-%d_%X.3"))
             filename = werkzeug.utils.secure_filename(filename)
             if not os.path.exists(os.path.join(app.config['UPLOAD_FOLDER'], filename.split('.')[0])):
                 os.mkdir(os.path.join(app.config['UPLOAD_FOLDER'], filename.split('.')[0]))
@@ -50,6 +55,7 @@ def uploadfile():
             img = cv.imread(os.path.join(app.config['UPLOAD_FOLDER'], filename.split('.')[0], 'original.jpg'))
 
             xy, _ = usemodel(img.copy(), os.path.join(app.config['UPLOAD_FOLDER'], filename.split('.')[0], 'brand'))
+            print(xy)
             visualize_model(img, filename, model_finetune)
 
             return render_template('upload.html', filename=filename,logo = xy['name'])
@@ -84,4 +90,4 @@ def clear():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=PORT)
+    app.run(debug=True,host='0.0.0.0', port=PORT)
