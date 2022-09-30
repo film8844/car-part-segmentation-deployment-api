@@ -17,7 +17,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    files = sorted(os.listdir(os.path.join('static', 'uploads')))
+    files = sorted(os.listdir(os.path.join('static', 'uploads')),reverse=True)
     set_date = list(set(map(lambda x:x.split('_')[0],files)))
     set_date = sorted(set_date,reverse=True)
     print(files)
