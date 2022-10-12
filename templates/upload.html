@@ -51,9 +51,32 @@
 
 </div>
 {% if filename %}
-<div class="row mt-4">
+<div class="row mt-4 justify-content-center">
     <h4>Result : {% if logo %} Car brand <span class="badge bg-primary">{{logo}}</span> {% endif %}</h4>
-    {% for i in ['logo','original','sementic','mask'] %}
+    {% if logo %}
+    <div class="col-md-3 mt-4">
+        <div class="card">
+            <div class="card-header p-0 mx-3 mt-3 position-relative z-index-1">
+                <a href="{{url_for('display_image', filename=filename, file='logo.jpg')}}" class="d-block">
+                    <img src="{{ url_for('display_image', filename=filename, file='logo.jpg') }}"
+                         class="img-fluid border-radius-lg">
+                </a>
+            </div>
+
+            <div class="card-body pt-2">
+                <span class="text-gradient text-primary text-uppercase text-xs font-weight-bold my-2">{{filename}}</span>
+                <a href="javascript:;" class="card-title h5 d-block text-darker ">
+                    {{i}}
+                </a>
+                <p class="card-description ">
+                    ....
+                </p>
+            </div>
+        </div>
+    </div>
+
+    {% endif %}
+    {% for i in ['original','sementic','mask'] %}
     <div class="col-md-3 mt-4">
         <div class="card">
             <div class="card-header p-0 mx-3 mt-3 position-relative z-index-1">

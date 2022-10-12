@@ -14,7 +14,6 @@ CORS(app)
 app.config['SECRET_KEY'] = SECRET_KEY
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-
 @app.route('/', methods=['GET', 'POST'])
 def index():
     files = sorted(os.listdir(os.path.join('static', 'uploads')),reverse=True)
@@ -53,15 +52,14 @@ def uploadfile():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename.split('.')[0], 'original.jpg'))
 
             img = cv.imread(os.path.join(app.config['UPLOAD_FOLDER'], filename.split('.')[0], 'original.jpg'))
-
             xy, _ = usemodel(img.copy(), os.path.join(app.config['UPLOAD_FOLDER'], filename.split('.')[0], 'brand'))
             print(xy)
             visualize_model(img, filename, model_finetune)
 
             return render_template('upload.html', filename=filename,logo = xy['name'])
         else:
-            flash('Allowed image types are - png, jpg, jpeg, gif')
-            return redirect('/')
+            flash('Allowed image types are - png, jpg, jpeg')
+            return redirect('/upload')
     return render_template('upload.html')
 
 

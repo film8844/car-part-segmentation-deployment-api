@@ -9,15 +9,18 @@ def usemodel(img, savepath='.'):
     img_c = img.copy()
     result = logo_model(img, size=640)
     img = result.render()[0]
-    xy = result.pandas().xyxy[0].to_dict(orient="records")[0]
-    logo = img_c[ int(xy['ymin']):int(xy['ymax']) ,int(xy['xmin']):int(xy['xmax'])]
-    logo = cv2.resize(logo,(240,240))
-    print(xy['name'])
-    cv2.imwrite(os.path.join(savepath,xy['name'] + '.jpg'), logo)
-    cv2.imwrite(os.path.join(savepath[:-6],'logo.jpg'), img)
-    print(os.path.join(savepath,xy['name'] + '.jpg'))
-    print(os.path.join(savepath[:-6],'logo.jpg'))
-    return xy,logo
+    try:
+        xy = result.pandas().xyxy[0].to_dict(orient="records")[0]
+        logo = img_c[ int(xy['ymin']):int(xy['ymax']) ,int(xy['xmin']):int(xy['xmax'])]
+        logo = cv2.resize(logo,(240,240))
+        print(xy['name'])
+        cv2.imwrite(os.path.join(savepath,xy['name'] + '.jpg'), logo)
+        cv2.imwrite(os.path.join(savepath[:-6],'logo.jpg'), img)
+        print(os.path.join(savepath,xy['name'] + '.jpg'))
+        print(os.path.join(savepath[:-6],'logo.jpg'))
+        return xy,logo
+    except:
+        return {'name':None},1
 
 
 if __name__ =='__main__':
