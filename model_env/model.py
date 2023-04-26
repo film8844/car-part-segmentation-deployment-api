@@ -9,16 +9,55 @@ from torch import nn
 import matplotlib.pyplot as plt
 import glob
 
-from model_env.configs import *
 
-model_finetune = SegformerForSemanticSegmentation.from_pretrained("model_env/segformer-carpaets-b3-1e4",
-                                                                  ignore_mismatched_sizes=True,
-                                                                  num_labels=len(id2label), id2label=id2label,
-                                                                  label2id=label2id, reshape_last_stage=True)
-model_finetune.to(DEVICE)
+import torch
+import numpy as np
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+def get_model_carparts():
+    DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    id2label = {0: '_background_', 1: 'back_bumper', 2: 'back_glass', 3: 'back_left_door', 4: 'back_left_light',
+                5: 'back_right_door', 6: 'back_right_light', 7: 'front_bumper', 8: 'front_glass', 9: 'front_left_door',
+                10: 'front_left_light', 11: 'front_right_door', 12: 'front_right_light', 13: 'hood', 14: 'left_mirror',
+                15: 'right_mirror', 16: 'tailgate', 17: 'trunk', 18: 'wheel'}
+    label2id = {'_background_': 0, 'back_bumper': 1, 'back_glass': 2, 'back_left_door': 3, 'back_left_light': 4,
+                'back_right_door': 5, 'back_right_light': 6, 'front_bumper': 7, 'front_glass': 8, 'front_left_door': 9,
+                'front_left_light': 10, 'front_right_door': 11, 'front_right_light': 12, 'hood': 13, 'left_mirror': 14,
+                'right_mirror': 15, 'tailgate': 16, 'trunk': 17, 'wheel': 18}
+    palette = np.array([[0, 0, 0],
+                        [225, 76, 225],
+                        [127, 255, 191],
+                        [255, 193, 21],
+                        [203, 203, 203],
+                        [102, 178, 255],
+                        [255, 196, 228],
+                        [103, 202, 223],
+                        [255, 71, 71],
+                        [161, 255, 164],
+                        [21, 253, 29],
+                        [251, 255, 176],
+                        [254, 148, 12],
+                        [150, 0, 250],
+                        [196, 0, 13],
+                        [48, 166, 159],
+                        [102, 51, 0],
+                        [245, 255, 240],
+                        [171, 199, 56]])
+    classes = ['_background_', 'back_bumper', 'back_glass', 'back_left_door', 'back_left_light', 'back_right_door',
+               'back_right_light', 'front_bumper', 'front_glass', 'front_left_door', 'front_left_light', 'front_right_door',
+               'front_right_light', 'hood', 'left_mirror', 'right_mirror', 'tailgate', 'trunk', 'wheel']
+
+
+    model_finetune = SegformerForSemanticSegmentation.from_pretrained("model_env/segformer-carpaets-b3-1e4",
+                                                                      ignore_mismatched_sizes=True,
+                                                                      num_labels=len(id2label), id2label=id2label,
+                                                                      label2id=label2id, reshape_last_stage=True)
+    model_finetune.to(DEVICE)
+    return model_finetune
+
+
 
 feature_extractor = SegformerFeatureExtractor(align=False, reduce_zero_label=False)
-
 
 class ImageSegmentationDataset(Dataset):
     """Image segmentation dataset."""
@@ -79,8 +118,26 @@ class ImageSegmentationDataset(Dataset):
 
         return encoded_inputs
 
-
 def convert_mask(mask: np.array) -> np.array:
+    palette = np.array([[0, 0, 0],
+                        [225, 76, 225],
+                        [127, 255, 191],
+                        [255, 193, 21],
+                        [203, 203, 203],
+                        [102, 178, 255],
+                        [255, 196, 228],
+                        [103, 202, 223],
+                        [255, 71, 71],
+                        [161, 255, 164],
+                        [21, 253, 29],
+                        [251, 255, 176],
+                        [254, 148, 12],
+                        [150, 0, 250],
+                        [196, 0, 13],
+                        [48, 166, 159],
+                        [102, 51, 0],
+                        [245, 255, 240],
+                        [171, 199, 56]])
     for label, color in enumerate(palette):
         if label == 0:
             continue
@@ -89,10 +146,31 @@ def convert_mask(mask: np.array) -> np.array:
             mask[tup_where[0][i], tup_where[1][i], tup_where[2][i]] = color[tup_where[2][i]]
     return mask
 
-
 def visualize_model(image, filename: str, model_finetune):
     filename = filename.split('.')
-
+    classes = ['_background_', 'back_bumper', 'back_glass', 'back_left_door', 'back_left_light', 'back_right_door',
+               'back_right_light', 'front_bumper', 'front_glass', 'front_left_door', 'front_left_light',
+               'front_right_door',
+               'front_right_light', 'hood', 'left_mirror', 'right_mirror', 'tailgate', 'trunk', 'wheel']
+    palette = np.array([[0, 0, 0],
+                        [225, 76, 225],
+                        [127, 255, 191],
+                        [255, 193, 21],
+                        [203, 203, 203],
+                        [102, 178, 255],
+                        [255, 196, 228],
+                        [103, 202, 223],
+                        [255, 71, 71],
+                        [161, 255, 164],
+                        [21, 253, 29],
+                        [251, 255, 176],
+                        [254, 148, 12],
+                        [150, 0, 250],
+                        [196, 0, 13],
+                        [48, 166, 159],
+                        [102, 51, 0],
+                        [245, 255, 240],
+                        [171, 199, 56]])
     inputs = feature_extractor(images=image, return_tensors="pt").to(DEVICE)
 
     outputs = model_finetune(**inputs)
@@ -138,9 +216,11 @@ def visualize_model(image, filename: str, model_finetune):
     cv2.imwrite(os.path.join('static', 'uploads', filename[0], 'mask.jpg'), color_seg)
 
 
-
 if __name__ == '__main__':
     print('Start')
-    logo_detaction(df)
+    # logo_detaction(df)
     # visualize_model('../static/uploads/images/original.jpeg')
-    # img = cv2.imread('../train1.jpg')
+
+    img = cv2.imread('test_images/001168.jpg')
+    visualize_model_damage(img,'001168.jpg', model_damage)
+

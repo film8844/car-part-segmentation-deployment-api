@@ -5,10 +5,8 @@ import os
 import glob
 import shutil
 
-
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 
 def resize_img(src, dsize, filename):
     output = cv2.resize(src, dsize)
@@ -19,7 +17,6 @@ def resize_img(src, dsize, filename):
     cv2.imwrite(os.path.join('static', 'uploads', 'G' + filename), cv2.merge([zeros, G, zeros]))
     cv2.imwrite(os.path.join('static', 'uploads', 'B' + filename), cv2.merge([B, zeros, zeros]))
     cv2.imwrite(os.path.join('static', 'uploads', filename), output)
-
 
 def clear_file():
     files = []

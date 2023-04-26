@@ -7,12 +7,16 @@ from configs import *
 from tools import *
 from model_env.model import *
 from model_env.logo_model import *
+from model_env.model_damage import *
 
 app = Flask(__name__)
 CORS(app)
 
 app.config['SECRET_KEY'] = SECRET_KEY
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+model_finetune = get_model_carparts()
+model_damage = get_model_damage()
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -23,11 +27,18 @@ def index():
     print(set_date)
     return render_template('Home.html', files=files, date=set_date)
 
+@app.route('/damage', methods=['GET', 'POST'])
+def index_damage():
+    files = sorted(os.listdir(UPLOAD_FOLDER_DAMAGE),reverse=True)
+    set_date = list(set(map(lambda x:x.split('_')[0],files)))
+    set_date = sorted(set_date,reverse=True)
+    print(files)
+    print(set_date)
+    return render_template('Home_damages.html', files=files, date=set_date)
 
 @app.route('/test', methods=['GET', 'POST'])
 def test():
     return jsonify({"message": 2})
-
 
 @app.route('/upload', methods=['GET', 'POST'])
 def uploadfile():
@@ -61,13 +72,50 @@ def uploadfile():
             flash('Allowed image types are - png, jpg, jpeg')
             return redirect('/upload')
     return render_template('upload.html')
+@app.route('/upload_damage', methods=['GET', 'POST'])
+def uploadfile_damage():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect('/upload')
+        file = request.files['file']
+        if file.filename == '':
+            flash('No image selected for uploading')
+            return redirect('/upload')
+        if file and allowed_file(file.filename):
+            filename = file.filename.replace(' ', '_')
+            print(filename)
+            filename = datetime.datetime.now().strftime("%Y-%m-%d_%X._")
+            print(datetime.datetime.now().strftime("%Y-%m-%d_%X.3"))
 
+            filename = werkzeug.utils.secure_filename(filename)
+
+            if not os.path.exists(os.path.join(UPLOAD_FOLDER_DAMAGE, filename.split('.')[0])):
+                os.mkdir(os.path.join(UPLOAD_FOLDER_DAMAGE, filename.split('.')[0]))
+                os.mkdir(os.path.join(UPLOAD_FOLDER_DAMAGE, filename.split('.')[0], 'brand'))
+
+            file.save(os.path.join(UPLOAD_FOLDER_DAMAGE, filename.split('.')[0], 'original.jpg'))
+
+            img = cv.imread(os.path.join(UPLOAD_FOLDER_DAMAGE, filename.split('.')[0], 'original.jpg'))
+            xy, _ = usemodel(img.copy(), os.path.join(UPLOAD_FOLDER_DAMAGE, filename.split('.')[0], 'brand'))
+            print(xy)
+            visualize_model_damage(img, filename, model_finetune)
+
+            return render_template('upload_damage.html', filename=filename,logo = xy['name'])
+        else:
+            flash('Allowed image types are - png, jpg, jpeg')
+            return redirect('/upload_damage')
+    return render_template('upload_damage.html')
 
 @app.route('/display/<filename>/<file>')
 def display_image(filename, file):
     path = os.path.join('uploads', filename.split('.')[0], file)
     return redirect(url_for('static', filename=path), code=301)
 
+@app.route('/display2/<filename>/<file>')
+def display_image2(filename, file):
+    path = os.path.join('uploads_damage', filename.split('.')[0], file)
+    return redirect(url_for('static', filename=path), code=301)
 
 @app.route('/<filename>', methods=['GET', 'POST'])
 def car(filename):
@@ -81,11 +129,21 @@ def car(filename):
     print(files)
     return render_template('Car.html', filename=filename, files=files,data=data)
 
+@app.route('/damage/<filename>', methods=['GET', 'POST'])
+def damage(filename):
+    try:
+        data = {
+            'logo':glob.glob(os.path.join('static', 'uploads_damage', filename,'brand', '*.jpg'))[0]
+        }
+    except: data = dict()
+    files = glob.glob(os.path.join('static', 'uploads_damage', filename, '*.png'))
+    files = list(map(lambda x: x.replace('static/', ''), files))
+    print(files)
+    return render_template('Car_damage.html', filename=filename, files=files,data=data)
 
 @app.route('/clear')
 def clear():
     return jsonify({'status': 'remove all file success.', 'filenames': clear_file()}), 201
-
 
 if __name__ == '__main__':
     app.run(debug=True,host='0.0.0.0', port=PORT)
