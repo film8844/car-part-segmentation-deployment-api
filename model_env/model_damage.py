@@ -10,19 +10,19 @@ import matplotlib.pyplot as plt
 import glob
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 def get_model_damage():
-
-    classes_damage = ('background', 'dent', 'scratch', 'crack', 'glass_shatter', 'lamp_broken', 'tire_flat',)
+    classes = ('background', 'dent', 'scratch', 'crack', 'glass_shatter', 'lamp_broken', 'tire_flat',)
     palette = [[0, 0, 0], [129, 127, 38], [120, 69, 125], [53, 125, 34],
                [0, 11, 123], [118, 20, 12], [122, 81, 25]]
-    id2label = dict([(idx, val) for idx, val in enumerate(classes_damage)])
-    label2id = dict([(val, idx) for idx, val in enumerate(classes_damage)])
+    id2label = dict([(idx, val) for idx, val in enumerate(classes)])
+    label2id = dict([(val, idx) for idx, val in enumerate(classes)])
+    palette_dict = dict([(idx, val) for idx, val in enumerate(palette)])
 
-    model_damage = SegformerForSemanticSegmentation.from_pretrained("model_env/checkpoint-4550",
-                                                                 ignore_mismatched_sizes=True,
-                                                                 num_labels=len(id2label), id2label=id2label,
-                                                                 label2id=label2id,
-                                                                 reshape_last_stage=True)
-    return model_damage
+    model_inf = SegformerForSemanticSegmentation.from_pretrained(
+        "/Users/film/Documents/GitHub/car-part-segmentation-deployment-api/model_env/checkpoint-4550",
+        ignore_mismatched_sizes=True,
+        num_labels=len(id2label), id2label=id2label, label2id=label2id,
+        reshape_last_stage=True).to("cpu")
+    return model_inf
 
 
 def convert_mask(mask: np.array) -> np.array:
@@ -38,36 +38,29 @@ def convert_mask(mask: np.array) -> np.array:
 
 def visualize_model_damage(image, filename: str, model_finetune):
     filename = filename.split('.')
-    classes_damage = ('background', 'dent', 'scratch', 'crack', 'glass_shatter', 'lamp_broken', 'tire_flat',)
+    classes = ('background', 'dent', 'scratch', 'crack', 'glass_shatter', 'lamp_broken', 'tire_flat',)
+    palette = [[0, 0, 0], [129, 127, 38], [120, 69, 125], [53, 125, 34],
+               [0, 11, 123], [118, 20, 12], [122, 81, 25]]
+    palette_dict = dict([(idx, val) for idx, val in enumerate(palette)])
+
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     feature_extractor = SegformerFeatureExtractor(align=False, reduce_zero_label=False)
-
-
-    inputs = feature_extractor(images=image, return_tensors="pt").to('cpu')
-
+    inputs = feature_extractor(images=image, return_tensors="pt").to("cpu")
     outputs = model_finetune(**inputs)
     logits = outputs.logits
     upsampled_logits = nn.functional.interpolate(logits,
                                                  size=image.shape[:-1],  # (height, width)
                                                  mode='bilinear',
                                                  align_corners=False)
-    seg = upsampled_logits.argmax(dim=1)[0]
-    color_seg = np.zeros((seg.shape[0], seg.shape[1], 3), dtype=np.uint8)
-    # list_prediction = [classes[idx] for idx in np.unique(seg.cpu().numpy())
-    palette = [[0, 0, 0], [129, 127, 38], [120, 69, 125], [53, 125, 34],
-               [0, 11, 123], [118, 20, 12], [122, 81, 25]]
-    for label, color in enumerate(palette):
-        color_seg[seg.cpu() == label, :] = color
-
-    # color_seg = color_seg[..., ::-1]
-    img_sementice = np.array(image) * 0.5 + color_seg * 0.5
-    img_sementice = img_sementice.astype(np.uint8)
-
-
-    cv2.imwrite(os.path.join('static', 'uploads_damage', filename[0], 'output.jpg'), np.array(seg))
-    print(os.path.join('static', 'uploads_damage', filename[0], 'output.jpg'))
-    cv2.imwrite(os.path.join('static', 'uploads_damage', filename[0], 'original.jpg'), image)
-    cv2.imwrite(os.path.join('static', 'uploads_damage', filename[0], 'sementic.jpg'), img_sementice)
-    cv2.imwrite(os.path.join('static', 'uploads_damage', filename[0], 'mask.jpg'), color_seg)
+    seg = upsampled_logits.argmax(dim=1)[0].cpu().numpy()
+    overlay_pred = np.zeros_like(image)
+    for c in palette_dict.keys():
+        indices_pred = np.where(seg == c)
+        overlay_pred[indices_pred] = palette_dict[c]
+    blended_pred = cv2.addWeighted(image, 0.5, overlay_pred, 0.5, 0)
+    print('New')
+    plt.imsave(os.path.join('static', 'uploads_damage', filename[0], 'sementic.jpg'), blended_pred)
+    plt.imsave(os.path.join('static', 'uploads_damage', filename[0], 'mask.jpg'), overlay_pred)
 
 
 

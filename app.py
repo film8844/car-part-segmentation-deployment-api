@@ -99,7 +99,7 @@ def uploadfile_damage():
             img = cv.imread(os.path.join(UPLOAD_FOLDER_DAMAGE, filename.split('.')[0], 'original.jpg'))
             xy, _ = usemodel(img.copy(), os.path.join(UPLOAD_FOLDER_DAMAGE, filename.split('.')[0], 'brand'))
             print(xy)
-            visualize_model_damage(img, filename, model_finetune)
+            visualize_model_damage(img, filename, model_damage)
 
             return render_template('upload_damage.html', filename=filename,logo = xy['name'])
         else:
